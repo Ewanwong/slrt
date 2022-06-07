@@ -13,7 +13,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 import numpy as np
-# import pyarrow as pa
+import pyarrow as pa
 from PIL import Image
 import torch.utils.data as data
 import matplotlib.pyplot as plt
