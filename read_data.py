@@ -17,12 +17,13 @@ from torch.utils.data import Dataset, DataLoader
 # 读所有id 读label 读video
 
 class CSL_dataset(Dataset):
-    def __init__(self, prefix='phoenix2014_data', gloss_dict={}, mode='train', input_type='fullFrame-210x260px', transform_mode=True):
+    def __init__(self, prefix='phoenix2014_data', gloss_dict='gloss_dict.pkl', mode='train', input_type='fullFrame-210x260px', transform_mode=True):
         super(CSL_dataset, self).__init__()
         self.prefix = prefix
         self.mode = mode
         self.transform_mode = transform_mode
-        self.gloss_dict = gloss_dict
+        with open(gloss_dict, 'rb') as f:
+            self.gloss_dict = pickle.load(f)
         self.data_aug = self.transform()
         self.dataset = []
         self.feature_path = f'{prefix}/features/{input_type}/{mode}/'
