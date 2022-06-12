@@ -2,6 +2,8 @@ import os
 import pandas
 from collections import defaultdict
 import pickle
+from sklearn import preprocessing
+
 
 sel = ['dev', 'test', 'train']
 
@@ -15,9 +17,10 @@ for i in sel:
 
 gloss_list = [gloss for gloss in set(gloss_list) if len(gloss) > 0]
 gloss_list.append('<BLANK>')
+
 dict = defaultdict(int)
 for idx, gloss in enumerate(gloss_list):
-    dict[gloss] = idx
+    dict[gloss] = idx + 1
 
 with open('gloss_dict.pkl', 'wb') as f:
     pickle.dump(dict, f)
