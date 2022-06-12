@@ -12,18 +12,22 @@ from PIL import Image
 from utils import video_augmentation
 from collections import defaultdict
 from torch.utils.data import Dataset, DataLoader
+from sklearn import preprocessing
+import argparse
 
 
 # 读所有id 读label 读video
 
 class CSL_dataset(Dataset):
-    def __init__(self, prefix='phoenix2014_data', gloss_dict='gloss_dict.pkl', mode='train', input_type='fullFrame-210x260px', transform_mode=True):
+    def __init__(self, prefix='phoenix2014_data', gloss_dict='gloss_dict.pkl', mode='train',
+                 input_type='fullFrame-210x260px', transform_mode=True):
         super(CSL_dataset, self).__init__()
         self.prefix = prefix
         self.mode = mode
         self.transform_mode = transform_mode
         with open(gloss_dict, 'rb') as f:
             self.gloss_dict = pickle.load(f)
+
         self.data_aug = self.transform()
         self.dataset = []
         self.feature_path = f'{prefix}/features/{input_type}/{mode}/'
@@ -31,8 +35,10 @@ class CSL_dataset(Dataset):
         self.len_labels = 0
         self.len_features = 0
         self.data = defaultdict(dict)
+
         self._get_labels()
         self._get_features()
+
         self.normalize()
 
     def __len__(self):
@@ -51,29 +57,37 @@ class CSL_dataset(Dataset):
                 self.data[idx] = defaultdict(dict)
             if not self.data[idx][folder]:
                 self.data[idx][folder] = defaultdict(dict)
-            self.data[idx][folder]['label'] = glosses.split(' ')  # 是否int
+            labels = glosses.split(' ')  # 是否int
+            labels = [self.gloss_dict[gloss] for gloss in labels if len(gloss) > 0]
+
+            self.data[idx][folder]['label'] = labels
             self.data[idx][folder]['signer'] = signer
 
     def _get_features(self):
         idx_paths = glob.glob(os.path.join(self.feature_path, '*', '*'))
         self.len_features = len(idx_paths)
         for idx_path in idx_paths:
+
             idx, folder, video = self._get_video(idx_path)
             self.data[idx][folder]['features'] = video
 
     def _get_video(self, video_path):
         path = os.path.join(video_path, '*')
         img_list = sorted(glob.glob(path))
+
         video = [cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB) for img_path in img_list]
+
         idx, folder = video_path.split('\\')[-2], video_path.split('\\')[-1]
         return idx, folder, video
 
     def normalize(self):
         for idx, v1 in self.data.items():
             for folder, v2 in v1.items():
-                video, label, signer = self.data[idx][folder]['features'], self.data[idx][folder]['label'], self.data[idx][folder]['signer']
+                video, label, signer = self.data[idx][folder]['features'], self.data[idx][folder]['label'], \
+                                       self.data[idx][folder]['signer']
+
                 video, label = self.data_aug(video, label, None)
-                print(label)
+
                 video = video.float() / 127.5 - 1
                 self.data[idx][folder]['features'], self.data[idx][folder]['label'] = video, label
                 self.dataset.append((video, torch.LongTensor(label), idx, folder, signer))
@@ -104,7 +118,15 @@ class CSL_dataset(Dataset):
                 pickle.dump(i, f)
 
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--prefix", default='phoenix2014_data')
+    parser.add_argument("--gloss_dict", default='gloss_dict.pkl')
+    parser.add_argument("--mode", default="train")
+    parser.add_argument("input_type", default='fullFrame-210x260px')
+    parser.add_argument("--transform_mode", default=True)
+    parser.add_argument("--save_path", default='data.pkl')
+    args = parser.parse_args()
 
-
-a = CSL_dataset("sample_data")
-a.save_to_path('data.pk')
+    data_set = CSL_dataset(args.prefix, args.gloss_dict, args.mode, args.input_type, args.transform_mode)
+    data_set.save_to_path(args.save_path)
