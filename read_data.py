@@ -20,11 +20,10 @@ import argparse
 
 class CSL_dataset(Dataset):
     def __init__(self, prefix='phoenix2014_data', gloss_dict='gloss_dict.pkl', mode='train',
-                 input_type='fullFrame-210x260px', transform_mode=True):
+                 input_type='fullFrame-210x260px'):
         super(CSL_dataset, self).__init__()
         self.prefix = prefix
         self.mode = mode
-        self.transform_mode = transform_mode
         with open(gloss_dict, 'rb') as f:
             self.gloss_dict = pickle.load(f)
 
@@ -77,7 +76,7 @@ class CSL_dataset(Dataset):
 
         video = [cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB) for img_path in img_list]
 
-        idx, folder = video_path.split('\\')[-2], video_path.split('\\')[-1]
+        idx, folder = video_path.split('/')[-2], video_path.split('/')[-1]
         return idx, folder, video
 
     def normalize(self):
@@ -93,7 +92,7 @@ class CSL_dataset(Dataset):
                 self.dataset.append((video, torch.LongTensor(label), idx, folder, signer))
 
     def transform(self):
-        if self.transform_mode:
+        if self.mode=='train':
             print("Apply training transform.")
             return video_augmentation.Compose([
                 # video_augmentation.CenterCrop(224),
@@ -113,9 +112,9 @@ class CSL_dataset(Dataset):
             ])
 
     def save_to_path(self, path):
-        with open(path, 'w', encoding='utf-8') as f:
-            for i in self.dataset:
-                pickle.dump(i, f)
+        with open(path, 'wb') as f:
+            
+            pickle.dump(self.dataset, f)
 
 
 if __name__ == "__main__":
@@ -123,10 +122,9 @@ if __name__ == "__main__":
     parser.add_argument("--prefix", default='phoenix2014_data')
     parser.add_argument("--gloss_dict", default='gloss_dict.pkl')
     parser.add_argument("--mode", default="train")
-    parser.add_argument("input_type", default='fullFrame-210x260px')
-    parser.add_argument("--transform_mode", default=True)
+    parser.add_argument("--input_type", default='fullFrame-210x260px')
     parser.add_argument("--save_path", default='data.pkl')
     args = parser.parse_args()
 
-    data_set = CSL_dataset(args.prefix, args.gloss_dict, args.mode, args.input_type, args.transform_mode)
+    data_set = CSL_dataset(args.prefix, args.gloss_dict, args.mode, args.input_type)
     data_set.save_to_path(args.save_path)
