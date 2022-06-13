@@ -83,12 +83,12 @@ class CSL_dataset(Dataset):
         for idx, v1 in self.data.items():
             for folder, v2 in v1.items():
                 video, label, signer = self.data[idx][folder]['features'], self.data[idx][folder]['label'], \
-                                       self.data[idx][folder]['signer']
-
-                video, label = self.data_aug(video, label, None)
-
-                video = video.float() / 127.5 - 1
-                self.data[idx][folder]['features'], self.data[idx][folder]['label'] = video, label
+                                        self.data[idx][folder]['signer']
+                #
+                # video, label = self.data_aug(video, label, None)
+                #
+                # video = video.float() / 127.5 - 1
+                # self.data[idx][folder]['features'], self.data[idx][folder]['label'] = video, label
                 self.dataset.append((video, torch.LongTensor(label), idx, folder, signer))
 
     def transform(self):
