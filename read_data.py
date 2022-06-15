@@ -27,7 +27,7 @@ class CSL_dataset(Dataset):
         with open(gloss_dict, 'rb') as f:
             self.gloss_dict = pickle.load(f)
 
-        self.data_aug = self.transform()
+        #self.data_aug = self.transform()
         self.dataset = []
         self.feature_path = f'{prefix}/features/{input_type}/{mode}/'
         self.label_path = f'{prefix}/annotations/manual/{mode}.corpus.csv'
@@ -38,7 +38,7 @@ class CSL_dataset(Dataset):
         self._get_labels()
         self._get_features()
 
-        self.normalize()
+        #self.normalize()
 
     def __len__(self):
         return self.len_labels, self.len_features  # 目前用于sample data
@@ -73,8 +73,8 @@ class CSL_dataset(Dataset):
     def _get_video(self, video_path):
         path = os.path.join(video_path, '*')
         img_list = sorted(glob.glob(path))
-
-        video = [cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB) for img_path in img_list]
+        video = [img_path for img_path in img_list]
+        #video = [cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB) for img_path in img_list]
 
         idx, folder = video_path.split('/')[-2], video_path.split('/')[-1]
         return idx, folder, video
