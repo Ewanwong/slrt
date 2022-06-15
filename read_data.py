@@ -28,7 +28,9 @@ class CSL_dataset(Dataset):
             self.gloss_dict = pickle.load(f)
 
         #self.data_aug = self.transform()
-        self.dataset = defaultdict()
+
+        self.dataset = defaultdict(list)
+
         self.feature_path = f'{prefix}/features/{input_type}/{mode}/'
         self.label_path = f'{prefix}/annotations/manual/{mode}.corpus.csv'
         self.len_labels = 0
@@ -73,8 +75,10 @@ class CSL_dataset(Dataset):
     def _get_video(self, video_path):
         path = os.path.join(video_path, '*')
         img_list = sorted(glob.glob(path))
-        video = [img_path for img_path in img_list]
+
+        video = ['/'.join(img_path.split('/')[4:]) for img_path in img_list]
         #video = [cv2.cvtColor(cv2.imread(img_path), cv2.COLOR_BGR2RGB) for img_path in img_list]
+        
 
         idx, folder = video_path.split('/')[-2], video_path.split('/')[-1]
         return idx, folder, video
@@ -85,11 +89,13 @@ class CSL_dataset(Dataset):
             for folder, v2 in v1.items():
                 video, label, signer = self.data[idx][folder]['features'], self.data[idx][folder]['label'], \
                                         self.data[idx][folder]['signer']
-                self.dataset['ids'] = id
+
+                self.dataset['ids'].append(id)
                 id += 1
-                self.dataset['features'] = video
-                self.dataset['label'] = label
-                self.dataset['signer'] = signer
+                self.dataset['features'].append(video)
+                self.dataset['label'].append(label)
+                self.dataset['signer'].append(signer)
+
                 # video, label = self.data_aug(video, label, None)
                 #
                 # video = video.float() / 127.5 - 1
