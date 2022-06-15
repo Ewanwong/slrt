@@ -28,7 +28,7 @@ class CSL_dataset(Dataset):
             self.gloss_dict = pickle.load(f)
 
         #self.data_aug = self.transform()
-        self.dataset = []
+        self.dataset = defaultdict()
         self.feature_path = f'{prefix}/features/{input_type}/{mode}/'
         self.label_path = f'{prefix}/annotations/manual/{mode}.corpus.csv'
         self.len_labels = 0
@@ -80,16 +80,21 @@ class CSL_dataset(Dataset):
         return idx, folder, video
 
     def normalize(self):
+        id = 0
         for idx, v1 in self.data.items():
             for folder, v2 in v1.items():
                 video, label, signer = self.data[idx][folder]['features'], self.data[idx][folder]['label'], \
                                         self.data[idx][folder]['signer']
-                #
+                self.dataset['ids'] = id
+                id += 1
+                self.dataset['features'] = video
+                self.dataset['label'] = label
+                self.dataset['signer'] = signer
                 # video, label = self.data_aug(video, label, None)
                 #
                 # video = video.float() / 127.5 - 1
                 # self.data[idx][folder]['features'], self.data[idx][folder]['label'] = video, label
-                self.dataset.append((video, torch.LongTensor(label), idx, folder, signer))
+                
 
     def transform(self):
         if self.mode=='train':
@@ -119,10 +124,10 @@ class CSL_dataset(Dataset):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--prefix", default='phoenix2014_data')
+    parser.add_argument("--prefix", default='../phoenix2014_data')
     parser.add_argument("--gloss_dict", default='gloss_dict.pkl')
     parser.add_argument("--mode", default="train")
-    parser.add_argument("--input_type", default='fullFrame-210x260px')
+    parser.add_argument("--input_type", default='fullFrame-224x224px')
     parser.add_argument("--save_path", default='data.pkl')
     args = parser.parse_args()
 
