@@ -13,8 +13,8 @@ class Reader:
         self.mode = mode
         dict_path = f'{mode}.pkl'
         with open(dict_path, 'rb') as f:
-            self.list = pickle.load(f)
-        print(self.list)
+            self.dict = pickle.load(f)
+        print(self.dict['features'])
 
 
-a = Reader('', 'train')
+a = Reader('', 'test')
