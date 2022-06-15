@@ -38,7 +38,7 @@ class CSL_dataset(Dataset):
         self._get_labels()
         self._get_features()
 
-        #self.normalize()
+        self.normalize()
 
     def __len__(self):
         return self.len_labels, self.len_features  # 目前用于sample data
