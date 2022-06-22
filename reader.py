@@ -13,7 +13,7 @@ class Reader:
     def __init__(self, prefix, data_path, mode, gloss_dict, batch_size=2, distortion=True, do_shuffle=True):
         self.prefix = prefix
         self.mode = mode
-        dict_path = f'{data_path}.pkl'
+        dict_path = data_path
         with open(dict_path, 'rb') as f:
             mode_dict = pickle.load(f)
         self.data = mode_dict[mode]
@@ -50,7 +50,7 @@ class Reader:
             indices = index[i: i + self.batch_size]
             batch_size = len(indices)  # for end of the iteration
 
-            video_paths = [os.path.join(self.prefix, self.data[k]['paths']) for k in indices]
+            video_paths = [os.path.join(self.prefix, '/'.join(self.data[k]['paths'][0].split('/')[:-1])) for k in indices]
             labels = [self.data[k]['label'] for k in indices]
 
             videos = []
@@ -70,7 +70,7 @@ class Reader:
             mask_len = [max_len - len(video) for video in videos]
             valid_len = torch.Tensor([len(video) for video in videos])
             for i in range(batch_size):
-                videos[i] = torch.concat([videos[i], torch.zeros((mask_len[i], 224, 224))])
+                videos[i] = torch.concat([videos[i], torch.zeros((mask_len[i], 3, 224, 224))])
                 # mask.append(torch.concat([torch.ones(len(videos[i]), 1), torch.zeros(mask_len[i]), 1]))
 
             videos = torch.stack(videos, dim=0)
@@ -81,7 +81,7 @@ class Reader:
             max_output_len = max(valid_output_len)
             for i in range(batch_size):
                 outputs[i] = torch.concat(
-                    [outputs[i], torch.zeros((max_output_len - valid_output_len[i], self.num_classes, 1))])
+                    [outputs[i], torch.zeros((int((max_output_len - valid_output_len[i]).item()), self.num_classes))])
             outputs = torch.stack(outputs, dim=0)
 
             # TODO: 改为输出有效长度，对output对齐
