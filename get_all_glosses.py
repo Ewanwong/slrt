@@ -20,7 +20,7 @@ gloss_list.append('<BLANK>')
 
 dict = defaultdict(int)
 for idx, gloss in enumerate(gloss_list):
-    dict[gloss] = idx + 1
+    dict[gloss] = idx
 
 with open('gloss_dict.pkl', 'wb') as f:
     pickle.dump(dict, f)

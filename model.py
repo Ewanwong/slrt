@@ -9,8 +9,8 @@ from tqdm import tqdm
 class TemporalFusion(nn.Module):
     def __init__(self, conv_k, pool_k):
         super(TemporalFusion, self).__init__()
-        self.conv = nn.Conv1d(in_channels=1, out_channels=1, kernel_size=tuple(conv_k), padding='same')
-        self.pooling = nn.MaxPool1d(kernel_size=pool_k, stride=pool_k, padding='same')
+        self.conv = nn.Conv1d(in_channels=1024, out_channels=1024, kernel_size=conv_k, padding='same')
+        self.pooling = nn.MaxPool1d(kernel_size=pool_k, stride=pool_k, padding=int(pool_k/2))
 
     def forward(self, x):
         x = self.conv(x)
@@ -43,9 +43,10 @@ class CSLR(nn.Module):
         framewise_features = framewise_features.reshape(batch, max_len, -1)
         spatio_dim = framewise_features.shape[2]
         for i in range(batch):  # 检查此处维度
-            framewise_features[i, valid_lengths[i]:, :] = torch.zeros((max_len - valid_lengths[i], spatio_dim))
-
+            framewise_features[i, int(valid_lengths[i]):, :] = torch.zeros((int((max_len - valid_lengths[i]).item()), spatio_dim))
+        framewise_features = framewise_features.permute(0, 2, 1)
         spatio_temporal = self.conv1d(framewise_features)
+        spatio_temporal = spatio_temporal.permute(0, 2, 1)
         spatio_temporal = self.conv1d_fc(spatio_temporal)
         # batch, len, dim
 
@@ -56,7 +57,8 @@ class CSLR(nn.Module):
         packed_emb = nn.utils.rnn.pack_padded_sequence(spatio_temporal, valid_len, batch_first=True,
                                                        enforce_sorted=False)
         alignments, _ = self.lstm(packed_emb)
-        alignments, _ = nn.utils.rnn.pad_packed_sequence(alignments)
+        alignments, _ = nn.utils.rnn.pad_packed_sequence(alignments, batch_first=True)
+
         alignments = self.fc(alignments)  # 有mask
         # batch, len , num_classes
 
@@ -96,7 +98,7 @@ def train_model(model, mode, prefix, data_path, gloss_dict, epochs, batch, lr, a
         videos, valid_len, outputs, valid_output_len = next(training_data.iterate())
         alignments, valid_len = model(videos, valid_len, 'train')
         loss = get_ctc_loss(alignments, valid_len, outputs, valid_output_len)
-
+        loss = loss.mean()
         # zero grad, backwards, step
         optimizer.zero_grad()
         loss.backward()

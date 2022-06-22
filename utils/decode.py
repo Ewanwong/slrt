@@ -7,7 +7,7 @@ class Decoder:
         with open(gloss_dict, 'rb') as f:
             self.gloss_dict = pickle.load(f)
         self.search_mode = search_mode
-        self.blank_id = gloss_dict[blank_token]
+        self.blank_id = self.gloss_dict[blank_token]
 
     def max_decode(self, alignments, valid_len):
         outputs = []
