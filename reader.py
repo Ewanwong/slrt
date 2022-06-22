@@ -68,7 +68,7 @@ class Reader:
             # mask = []
             # TODO:不用mask，用长度即可
             mask_len = [max_len - len(video) for video in videos]
-            valid_len = torch.Tensor([len(video) for video in videos])
+            valid_len = torch.Tensor([len(video) for video in videos]).type(torch.int32)
             for i in range(batch_size):
                 videos[i] = torch.concat([videos[i], torch.zeros((mask_len[i], 3, 224, 224))])
                 # mask.append(torch.concat([torch.ones(len(videos[i]), 1), torch.zeros(mask_len[i]), 1]))
@@ -77,11 +77,11 @@ class Reader:
 
             # mask = torch.stack(mask, dim=0)
 
-            valid_output_len = torch.Tensor([len(output) for output in outputs])
+            valid_output_len = torch.Tensor([len(output) for output in outputs]).type(torch.int32)
             max_output_len = max(valid_output_len)
             for i in range(batch_size):
                 outputs[i] = torch.concat(
-                    [outputs[i], torch.zeros((int((max_output_len - valid_output_len[i]).item()), self.num_classes))])
+                    [outputs[i], torch.zeros(((max_output_len - valid_output_len[i]).item(), self.num_classes))])
             outputs = torch.stack(outputs, dim=0)
 
             # TODO: 改为输出有效长度，对output对齐
