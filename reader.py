@@ -25,12 +25,16 @@ class Reader:
         self.distortion = distortion
         self.do_shuffle = do_shuffle
 
+
+
+
         # TODO: 取样求特征值分解
         # folders =
         # px = self.imgs[sorted(np.random.choice(799006, 1000, replace=False))]
         # px = px.reshape((-1, 3)) / 255.
         # px -= px.mean(axis=0)
         # self.eig_value, self.eig_vector = np.linalg.eig(np.cov(px.T))
+
 
         self.data_aug = self.transform()
 
@@ -104,3 +108,4 @@ class Reader:
             return Compose([
                 ToTensor()
             ])
+
