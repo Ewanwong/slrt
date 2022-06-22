@@ -43,7 +43,7 @@ class CSLR(nn.Module):
         framewise_features = framewise_features.reshape(batch, max_len, -1)
         spatio_dim = framewise_features.shape[2]
         for i in range(batch):  # 检查此处维度
-            framewise_features[i, int(valid_lengths[i]):, :] = torch.zeros((int((max_len - valid_lengths[i]).item()), spatio_dim))
+            framewise_features[i, int(valid_lengths[i]):, :] = torch.zeros(((max_len - valid_lengths[i]).item(), spatio_dim))
         framewise_features = framewise_features.permute(0, 2, 1)
         spatio_temporal = self.conv1d(framewise_features)
         spatio_temporal = spatio_temporal.permute(0, 2, 1)
@@ -51,7 +51,7 @@ class CSLR(nn.Module):
         # batch, len, dim
 
         # TODO:计算有效长度
-        valid_len = torch.Tensor([vlg / 4 for vlg in valid_lengths])
+        valid_len = torch.Tensor([vlg / 4 for vlg in valid_lengths]).type(torch.int32)
 
         # lstm处mask
         packed_emb = nn.utils.rnn.pack_padded_sequence(spatio_temporal, valid_len, batch_first=True,
