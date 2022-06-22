@@ -2,6 +2,7 @@ import glob
 import os
 import cv2
 import pandas
+
 from collections import defaultdict
 import pickle
 import torch
@@ -98,3 +99,33 @@ for i in range(20):
     if i % length == 0:
         a = get_int()
     print(next(a))
+
+
+import pickle
+
+path = 'dev.pkl'
+
+with open(path, 'rb') as f:
+    diction = pickle.load(f)
+
+print(diction.keys())
+print(diction['features'][0])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
