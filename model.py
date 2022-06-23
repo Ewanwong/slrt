@@ -76,7 +76,7 @@ class CSLR(nn.Module):
 
 
 def save_model(model, path):
-    torch.save(model.stat_dict(), path)
+    torch.save(model.state_dict(), path)
 
 
 def load_model(model, path):
@@ -118,3 +118,4 @@ def evaluate(model, mode, prefix, data_path, gloss_dict, batch):
     outputs = model(videos, valid_len, 'predict')
     wer = batch_evaluation(outputs, labels, valid_output_len)
     print(wer)
+
