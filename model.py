@@ -119,7 +119,7 @@ def evaluate(model, mode, prefix, data_path, gloss_dict, batch):
     test_data = Reader(prefix, data_path, mode, gloss_dict, batch)
     total_num = test_data.get_num_instances()
     total_distance, total_length = 0, 0
-    for i in tqdm(range(total_num/batch)):
+    for i in tqdm(range(int(total_num/batch))):
         videos, valid_len, labels, valid_output_len = next(test_data.iterate())
         videos, valid_len, labels, valid_output_len = videos.to(device), valid_len.to(device), labels.to(
             device), valid_output_len.to(device)
