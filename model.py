@@ -76,7 +76,7 @@ class CSLR(nn.Module):
 
 
 def save_model(model, path):
-    torch.save(model.stat_dict(), path)
+    torch.save(model.state_dict(), path)
 
 
 def load_model(model, path):
