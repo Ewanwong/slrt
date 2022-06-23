@@ -6,4 +6,4 @@ model = CSLR(1024, 1296, 512, decoder)
 
 load_model(model, '../model.pt')
 
-evaluate(model, 'dev', prefix, '../data.pkl', 'gloss_dict.pkl', 100)
+evaluate(model, 'dev', prefix, '../data.pkl', 'gloss_dict.pkl', 2)

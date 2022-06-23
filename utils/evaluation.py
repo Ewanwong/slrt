@@ -23,6 +23,6 @@ def batch_evaluation(predictions, labels, valid_lengths):
         total_distance += edit_distance
         total_length += label_length
     wer = total_distance / total_length
-    return wer
+    return wer, total_distance, total_length
 
 

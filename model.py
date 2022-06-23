@@ -115,12 +115,18 @@ def train_model(model, mode, prefix, data_path, gloss_dict, epochs, batch, lr, a
 def evaluate(model, mode, prefix, data_path, gloss_dict, batch):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
-    model.evaluate()
+    model.eval()
     test_data = Reader(prefix, data_path, mode, gloss_dict, batch)
-    videos, valid_len, labels, valid_output_len = next(test_data.iterate())
-    videos, valid_len, labels, valid_output_len = videos.to(device), valid_len.to(device), labels.to(
-        device), valid_output_len.to(device)
-    outputs = model(videos, valid_len, 'predict')
-    wer = batch_evaluation(outputs, labels, valid_output_len)
-    print(wer)
+    total_num = test_data.get_num_instances()
+    total_distance, total_length = 0, 0
+    for i in tqdm(range(total_num/batch)):
+        videos, valid_len, labels, valid_output_len = next(test_data.iterate())
+        videos, valid_len, labels, valid_output_len = videos.to(device), valid_len.to(device), labels.to(
+            device), valid_output_len.to(device)
+        outputs = model(videos, valid_len, 'predict')
+        wer, distance, length = batch_evaluation(outputs, labels, valid_output_len)
+        total_length += length
+        total_distance += distance
+        print(total_distance/total_length)
+
 
