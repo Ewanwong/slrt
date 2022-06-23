@@ -111,8 +111,8 @@ count = 0
 # print(diction.keys())
 # print(diction['features'][0])
 
-a = [1, 2, 3]
-print(len(torch.Tensor(a)))
+a = torch.Tensor([[1.2, 2.4, 3], [-1.2, 2.1, 0.1]])
+print(torch.max(a, dim=1))
 
 
 

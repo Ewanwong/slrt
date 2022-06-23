@@ -15,7 +15,7 @@ def batch_evaluation(predictions, labels, valid_lengths):
     # valid_length: 1d tensor
     assert len(predictions) == labels.shape[0] and len(predictions) == valid_lengths.shape[0]
     batch = len(predictions)
-    target, _ = torch.max(labels, dim=2)
+    _, target = torch.max(labels, dim=2)
     total_distance = 0
     total_length = 0
     for i in range(batch):
