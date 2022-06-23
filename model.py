@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from utils.decode import Decoder
 from utils.ctc_loss import get_ctc_loss
+from utils.evaluation import *
 from reader import Reader
 from tqdm import tqdm
 
@@ -85,7 +86,7 @@ def load_model(model, path):
 
 def train_model(model, mode, prefix, data_path, gloss_dict, epochs, batch, lr, alpha, path):
     model.train()
-
+    model.cuda()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)  #
 
     training_data = Reader(prefix, data_path, mode, gloss_dict, batch)
@@ -94,8 +95,9 @@ def train_model(model, mode, prefix, data_path, gloss_dict, epochs, batch, lr, a
     for i in tqdm(range(epochs)):
         if i > 0 and i % total_batch == 0:
             training_data = Reader(prefix, data_path, mode, gloss_dict, batch)
-
+        model.train()
         videos, valid_len, outputs, valid_output_len = next(training_data.iterate())
+        videos, valid_len, outputs, valid_output_len = videos.cuda(), valid_len.cuda(), outputs.cuda(), valid_output_len.cuda()
         alignments, valid_len = model(videos, valid_len, 'train')
         loss = get_ctc_loss(alignments, valid_len, outputs, valid_output_len)
         loss = loss.mean()
@@ -107,3 +109,12 @@ def train_model(model, mode, prefix, data_path, gloss_dict, epochs, batch, lr, a
         print(loss.item())
 
     save_model(model, path)
+
+
+def evaluate(model, mode, prefix, data_path, gloss_dict, batch):
+    model.evaluate()
+    test_data = Reader(prefix, data_path, mode, gloss_dict, batch)
+    videos, valid_len, labels, valid_output_len = next(test_data.iterate())
+    outputs = model(videos, valid_len, 'predict')
+    wer = batch_evaluation(outputs, labels, valid_output_len)
+    print(wer)

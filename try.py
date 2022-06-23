@@ -21,9 +21,9 @@ count = 0
 # with open('data.pkl', 'wb') as f:
 # #     pickle.dump(total_dict, f)
 
-with open('data.pkl', 'rb') as f:
-     dd = pickle.load(f)
-print(dd['train'][1]['paths'])
+# with open('data.pkl', 'rb') as f:
+#      dd = pickle.load(f)
+# print(dd['train'][1]['paths'])
 # for mode in modes:
 #     for id, v in dd[mode].items():
 #         for path in v['paths']:
@@ -87,30 +87,32 @@ print(dd['train'][1]['paths'])
 # a = torch.zeros((3, 1))
 # b = torch.zeros((3, 1))
 # print(torch.stack([a, b], dim=0).squeeze().shape)
-def get_int():
-    for i in range(10):
+# def get_int():
+#     for i in range(10):
+#
+#         yield i
+#
+# a = get_int()
+# length = len(list(a))
+#
+# for i in range(20):
+#     if i % length == 0:
+#         a = get_int()
+#     print(next(a))
+#
+#
+# import pickle
+#
+# path = 'dev.pkl'
+#
+# with open(path, 'rb') as f:
+#     diction = pickle.load(f)
+#
+# print(diction.keys())
+# print(diction['features'][0])
 
-        yield i
-
-a = get_int()
-length = len(list(a))
-
-for i in range(20):
-    if i % length == 0:
-        a = get_int()
-    print(next(a))
-
-
-import pickle
-
-path = 'dev.pkl'
-
-with open(path, 'rb') as f:
-    diction = pickle.load(f)
-
-print(diction.keys())
-print(diction['features'][0])
-
+a = [1, 2, 3]
+print(len(torch.Tensor(a)))
 
 
 
